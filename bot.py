@@ -108,7 +108,7 @@ async def roll(update: Update, context: ContextTypes.DEFAULT_TYPE):
         )
         return
 
-    gain = round(random.uniform(0.1, 5.0), 1)
+    gain = round(random.uniform(-15.0, 15.0), 1)
     new_weight = round(weight + gain, 1)
 
     conn = get_connection()
