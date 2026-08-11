@@ -102,13 +102,14 @@ async def roll(update: Update, context: ContextTypes.DEFAULT_TYPE):
         minutes = int(remaining // 60)
         seconds = int(remaining % 60)
 
+        print(f"[ROLL] {user.first_name} ({user.id}) — кулдаун, осталось {minutes}м {seconds}с")
         await update.message.reply_text(
             f"⏳ Ты уже крутил рулетку!\n\n"
             f"Следующий ролл через: {minutes} мин. {seconds} сек."
         )
         return
 
-    gain = round(random.uniform(-15.0, 15.0), 1)
+    gain = round(random.uniform(-10.0, 10.0), 1)
     new_weight = round(weight + gain, 1)
 
     conn = get_connection()
@@ -126,6 +127,8 @@ async def roll(update: Update, context: ContextTypes.DEFAULT_TYPE):
     cur.close()
     conn.close()
 
+    print(f"[ROLL] {user.first_name} ({user.id}) — выпало +{gain} кг | было {weight} → стало {new_weight}")
+
     await update.message.reply_text(
         f"🎲 {user.first_name}, тебе выпало: +{gain:.1f} кг!\n\n"
         f"⚖️ Было: {weight:.1f} кг\n"
@@ -142,6 +145,8 @@ async def show_weight(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user = update.effective_user
     weight, _ = get_user(user.id, user.first_name)
 
+    print(f"[WEIGHT] {user.first_name} ({user.id}) — текущий вес {weight} кг")
+
     await update.message.reply_text(
         f"⚖️ {user.first_name}, твой текущий вес: {weight:.1f} кг"
     )
@@ -152,6 +157,8 @@ async def show_weight(update: Update, context: ContextTypes.DEFAULT_TYPE):
 # =========================
 
 async def top(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    print(f"[TOP] {update.effective_user.first_name} ({update.effective_user.id}) запросил топ")
+
     conn = get_connection()
     cur = conn.cursor()
 
@@ -184,7 +191,38 @@ async def top(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
         text += f"{place} {name} — {weight:.1f} кг\n"
 
+
+
     await update.message.reply_text(text)
+
+# =========================
+# /reset
+# =========================
+
+async def reset(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    user = update.effective_user
+
+    conn = get_connection()
+    cur = conn.cursor()
+
+    cur.execute(
+        """
+        UPDATE users
+        SET weight = 70, last_roll = 0
+        WHERE user_id = %s
+        """,
+        (user.id,)
+    )
+    conn.commit()
+    cur.close()
+    conn.close()
+
+    print(f"[RESET] {user.first_name} ({user.id}) сбросил вес")
+
+    await update.message.reply_text(
+        f"♻️ {user.first_name}, твой вес сброшен на 70.0 кг.\n"
+        f"Кулдаун тоже сброшен."
+    )
 
 
 # =========================
@@ -202,6 +240,7 @@ def main():
     app.add_handler(CommandHandler("roll", roll))
     app.add_handler(CommandHandler("weight", show_weight))
     app.add_handler(CommandHandler("top", top))
+    app.add_handler(CommandHandler("reset", reset))
 
     print("Бот запущен!")
     app.run_polling()
