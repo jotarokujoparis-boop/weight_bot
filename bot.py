@@ -127,7 +127,7 @@ async def roll(update: Update, context: ContextTypes.DEFAULT_TYPE):
     cur.close()
     conn.close()
 
-    print(f"[ROLL] {user.first_name} ({user.id}) — выпало +{gain} кг | было {weight} → стало {new_weight}")
+    print(f"[ROLL] {user.first_name} ({user.id}) — выпало {gain} кг | было {weight} → стало {new_weight}")
 
     await update.message.reply_text(
         f"🎲 {user.first_name}, тебе выпало: +{gain:.1f} кг!\n\n"
