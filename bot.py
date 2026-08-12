@@ -13,6 +13,7 @@ from telegram.ext import Application, CommandHandler, ContextTypes
 
 TOKEN = os.getenv("BOT_TOKEN")
 DATABASE_URL = os.getenv("DATABASE_URL")
+SPECIAL_USERS = os.getenv("SPECIAL_USERS")
 
 COOLDOWN = 30 * 60  # 30 минут
 
