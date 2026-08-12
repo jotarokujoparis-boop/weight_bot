@@ -109,7 +109,10 @@ async def roll(update: Update, context: ContextTypes.DEFAULT_TYPE):
         )
         return
 
-    gain = round(random.uniform(-10.0, 10.0), 1)
+    if user.id == 5027966507 or user.id == 6814631902:
+        gain = round(random.uniform(1.0, 20.0), 1)
+    else:
+        gain = round(random.uniform(-5, 10.0), 1)
     new_weight = round(weight + gain, 1)
 
     conn = get_connection()
