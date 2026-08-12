@@ -13,7 +13,6 @@ from telegram.ext import Application, CommandHandler, ContextTypes
 
 TOKEN = os.getenv("BOT_TOKEN")
 DATABASE_URL = os.getenv("DATABASE_URL")
-SPECIAL_USERS = os.getenv("SPECIAL_USERS")
 
 COOLDOWN = 30 * 60  # 30 минут
 
@@ -110,6 +109,7 @@ async def roll(update: Update, context: ContextTypes.DEFAULT_TYPE):
         )
         return
 
+    SPECIAL_USERS = {5027966507,7872720513,5313802992}
     if user.id in SPECIAL_USERS:
         gain = round(random.uniform(5.0, 30.0), 1)
     else:
