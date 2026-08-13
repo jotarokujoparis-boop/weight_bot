@@ -109,11 +109,8 @@ async def roll(update: Update, context: ContextTypes.DEFAULT_TYPE):
         )
         return
 
-    SPECIAL_USERS = {5027966507,7872720513,5313802992}
-    if user.id in SPECIAL_USERS:
-        gain = round(random.uniform(5.0, 30.0), 1)
-    else:
-        gain = round(random.uniform(-5, 10.0), 1)
+
+    gain = round(random.uniform(-5, 10.0), 1)
     new_weight = round(weight + gain, 1)
 
     conn = get_connection()
