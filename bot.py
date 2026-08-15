@@ -85,17 +85,19 @@ def get_user(user_id: int, name: str):
     return weight, last_roll
 
 
+import asyncio
+
 async def send_and_delete(update: Update, context: ContextTypes.DEFAULT_TYPE, text: str):
-    """Отправляет сообщение и удаляет его через 60 секунд"""
     msg = await update.message.reply_text(text)
 
-    async def delete_message(ctx: ContextTypes.DEFAULT_TYPE):
+    async def delete_later():
+        await asyncio.sleep(60)
         try:
-            await ctx.bot.delete_message(chat_id=msg.chat_id, message_id=msg.message_id)
+            await context.bot.delete_message(chat_id=msg.chat_id, message_id=msg.message_id)
         except Exception:
             pass
 
-    context.job_queue.run_once(delete_message, when=60)
+    asyncio.create_task(delete_later())
 
 # =========================
 # /roll
