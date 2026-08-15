@@ -88,12 +88,26 @@ def get_user(user_id: int, name: str):
 import asyncio
 
 async def send_and_delete(update: Update, context: ContextTypes.DEFAULT_TYPE, text: str):
-    msg = await update.message.reply_text(text)
+    # Удаляем сообщение пользователя (команду)
+    try:
+        await update.message.delete()
+    except Exception:
+        pass  # если нет прав или уже удалили — просто пропускаем
 
+    # Отправляем ответ бота
+    msg = await context.bot.send_message(
+        chat_id=update.effective_chat.id,
+        text=text
+    )
+
+    # Удаляем ответ бота через 60 секунд
     async def delete_later():
         await asyncio.sleep(60)
         try:
-            await context.bot.delete_message(chat_id=msg.chat_id, message_id=msg.message_id)
+            await context.bot.delete_message(
+                chat_id=msg.chat_id,
+                message_id=msg.message_id
+            )
         except Exception:
             pass
 
