@@ -88,27 +88,31 @@ def get_user(user_id: int, name: str):
 import asyncio
 
 async def send_and_delete(update: Update, context: ContextTypes.DEFAULT_TYPE, text: str):
-    # 1. Отправляем ответ бота
-    msg = await update.message.reply_text(text)
+    # Отправляем ответ бота
+    bot_msg = await update.message.reply_text(text)
 
-    # 2. Удаляем сообщение пользователя (команду)
-    try:
-        await update.message.delete()
-    except Exception:
-        pass
-
-    # 3. Через 60 секунд удаляем ответ бота
-    async def delete_later():
+    # Через 60 секунд удаляем и ответ бота, и сообщение пользователя
+    async def delete_both():
         await asyncio.sleep(60)
         try:
+            # Удаляем ответ бота
             await context.bot.delete_message(
-                chat_id=msg.chat_id,
-                message_id=msg.message_id
+                chat_id=bot_msg.chat_id,
+                message_id=bot_msg.message_id
             )
         except Exception:
             pass
 
-    asyncio.create_task(delete_later())
+        try:
+            # Удаляем сообщение пользователя
+            await context.bot.delete_message(
+                chat_id=update.message.chat_id,
+                message_id=update.message.message_id
+            )
+        except Exception:
+            pass
+
+    asyncio.create_task(delete_both())
 
 # =========================
 # /roll
