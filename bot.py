@@ -85,6 +85,18 @@ def get_user(user_id: int, name: str):
     return weight, last_roll
 
 
+async def send_and_delete(update: Update, context: ContextTypes.DEFAULT_TYPE, text: str):
+    """Отправляет сообщение и удаляет его через 60 секунд"""
+    msg = await update.message.reply_text(text)
+
+    async def delete_message(ctx: ContextTypes.DEFAULT_TYPE):
+        try:
+            await ctx.bot.delete_message(chat_id=msg.chat_id, message_id=msg.message_id)
+        except Exception:
+            pass
+
+    context.job_queue.run_once(delete_message, when=60)
+
 # =========================
 # /roll
 # =========================
@@ -103,10 +115,9 @@ async def roll(update: Update, context: ContextTypes.DEFAULT_TYPE):
         seconds = int(remaining % 60)
 
         print(f"[ROLL] {user.first_name} ({user.id}) — кулдаун, осталось {minutes}м {seconds}с")
-        await update.message.reply_text(
-            f"⏳ Ты уже крутил рулетку!\n\n"
-            f"Следующий ролл через: {minutes} мин. {seconds} сек."
-        )
+        await send_and_delete(update, context,
+        f"⏳ Ты уже крутил рулетку!\n\n"
+        f"Следующий ролл через: {minutes} мин. {seconds} сек.")
         return
 
 
@@ -130,12 +141,11 @@ async def roll(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     print(f"[ROLL] {user.first_name} ({user.id}) — выпало {gain} кг | было {weight} → стало {new_weight}")
 
-    await update.message.reply_text(
-        f"🎲 {user.first_name}, тебе выпало: {gain:.1f} кг!\n\n"
-        f"⚖️ Было: {weight:.1f} кг\n"
-        f"📈 Стало: {new_weight:.1f} кг\n\n"
-        f"⏳ Следующий ролл через 30 минут."
-    )
+    await send_and_delete(update, context,
+      f"🎲 {user.first_name}, тебе выпало: +{gain:.1f} кг!\n\n"
+      f"⚖️ Было: {weight:.1f} кг\n"
+      f"📈 Стало: {new_weight:.1f} кг\n\n"
+      f"⏳ Следующий ролл через 30 минут.")
 
 
 # =========================
@@ -148,9 +158,9 @@ async def show_weight(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     print(f"[WEIGHT] {user.first_name} ({user.id}) — текущий вес {weight} кг")
 
-    await update.message.reply_text(
-        f"⚖️ {user.first_name}, твой текущий вес: {weight:.1f} кг"
-    )
+    await send_and_delete(update, context,
+                          f"⚖️ {user.first_name}, твой текущий вес: {weight:.1f} кг"
+                          )
 
 
 # =========================
@@ -192,9 +202,7 @@ async def top(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
         text += f"{place} {name} — {weight:.1f} кг\n"
 
-
-
-    await update.message.reply_text(text)
+    await send_and_delete(update, context, text)
 
 # =========================
 # /reset
@@ -220,10 +228,10 @@ async def reset(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     print(f"[RESET] {user.first_name} ({user.id}) сбросил вес")
 
-    await update.message.reply_text(
-        f"♻️ {user.first_name}, твой вес сброшен на 70.0 кг.\n"
-        f"Кулдаун тоже сброшен."
-    )
+    await send_and_delete(update, context,
+                          f"♻️ {user.first_name}, твой вес сброшен на 70.0 кг.\n"
+                          f"Кулдаун тоже сброшен."
+                          )
 
 
 # =========================
